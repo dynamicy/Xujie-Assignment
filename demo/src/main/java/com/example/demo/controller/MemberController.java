@@ -27,47 +27,31 @@ public class MemberController {
     public ResponseEntity<BaseResponse<Member>> createMember(@RequestBody MemberRequest memberRequest) {
         Member savedMember = memberService.save(memberRequest);
         BaseResponse<Member> response = new BaseResponse<>(HttpStatus.CREATED.value(), "Member created successfully", savedMember);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a member by ID")
     public ResponseEntity<BaseResponse<Member>> getMemberById(@PathVariable String id) {
-        try {
-            Member member = memberService.findById(id)
-                    .orElseThrow(() -> new MemberNotFoundException("Member not found with id " + id));
+            Member member = memberService.findById(id);
             BaseResponse<Member> response = new BaseResponse<>(HttpStatus.OK.value(), "Member retrieved successfully", member);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (MemberNotFoundException e) {
-            BaseResponse<Member> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+            return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a member by ID")
     public ResponseEntity<BaseResponse<Void>> deleteMember(@PathVariable String id) {
-        try {
-            memberService.delete(id);
-            BaseResponse<Void> response = new BaseResponse<>(HttpStatus.OK.value(), "Member deleted successfully");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (MemberNotFoundException e) {
-            BaseResponse<Void> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        memberService.delete(id);
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.OK.value(), "Member deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a member by ID")
     public ResponseEntity<BaseResponse<Member>> updateMember(@PathVariable String id, @RequestBody MemberRequest memberRequest) {
-        try {
-            Member updatedMember = memberService.update(id, memberRequest);
-            BaseResponse<Member> response = new BaseResponse<>(HttpStatus.OK.value(), "Member updated successfully", updatedMember);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (MemberNotFoundException e) {
-            BaseResponse<Member> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        Member updatedMember = memberService.update(id, memberRequest);
+        BaseResponse<Member> response = new BaseResponse<>(HttpStatus.OK.value(), "Member updated successfully", updatedMember);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -78,6 +62,6 @@ public class MemberController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Member> members = memberService.findAll(pageable);
         BaseResponse<Page<Member>> response = new BaseResponse<>(HttpStatus.OK.value(), "Members retrieved successfully", members);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 }

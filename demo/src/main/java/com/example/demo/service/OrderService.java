@@ -87,16 +87,16 @@ public class OrderService {
     }
 
     public void delete(String id) {
-        Optional<Order> orderOptional = orderRepository.findById(new ObjectId(id));
-        if (orderOptional.isPresent()) {
-            orderRepository.deleteById(new ObjectId(id));
-        } else {
+        ObjectId orderId = new ObjectId(id);
+        if (!orderRepository.existsById(orderId)) {
             throw new OrderNotFoundException("Order not found with id " + id);
         }
+        orderRepository.deleteById(orderId);
     }
 
-    public Optional<Order> findById(String id) {
-        return orderRepository.findById(new ObjectId(id));
+    public Order findById(String id) {
+        ObjectId orderId = new ObjectId(id);
+        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found with id " + id));
     }
 
     public List<Order> findAll() {

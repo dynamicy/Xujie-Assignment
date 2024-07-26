@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -23,30 +22,26 @@ public class ProductService {
     }
 
     public Product update(String id, ProductRequest productRequest) {
-        Optional<Product> productOptional = productRepository.findById(new ObjectId(id));
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-            product.setName(productRequest.getName());
-            product.setDescription(productRequest.getDescription());
-            product.setPrice(productRequest.getPrice());
-            product.setCurrency(productRequest.getCurrency() != null ? productRequest.getCurrency() : "TWD");
-            return productRepository.save(product);
-        } else {
-            throw new ProductNotFoundException("Product not found with id " + id);
-        }
+        ObjectId userId = new ObjectId(id);
+        Product product = productRepository.findById(userId).orElseThrow(() -> new ProductNotFoundException("Product not found with id " + id));
+        product.setName(productRequest.getName());
+        product.setDescription(productRequest.getDescription());
+        product.setPrice(productRequest.getPrice());
+        product.setCurrency(productRequest.getCurrency() != null ? productRequest.getCurrency() : "TWD");
+        return productRepository.save(product);
     }
 
     public void delete(String id) {
-        Optional<Product> productOptional = productRepository.findById(new ObjectId(id));
-        if (productOptional.isPresent()) {
-            productRepository.deleteById(new ObjectId(id));
-        } else {
+        ObjectId productId = new ObjectId(id);
+        if (!productRepository.existsById(productId)) {
             throw new ProductNotFoundException("Product not found with id " + id);
         }
+        productRepository.deleteById(productId);
     }
 
-    public Optional<Product> findById(String id) {
-        return productRepository.findById(new ObjectId(id));
+    public Product findById(String id) {
+        ObjectId userId = new ObjectId(id);
+        return productRepository.findById(userId).orElseThrow(() -> new ProductNotFoundException("Product not found with id " + id));
     }
 
     public List<Product> findAll() {

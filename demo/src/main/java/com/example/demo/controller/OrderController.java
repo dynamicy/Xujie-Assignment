@@ -4,7 +4,6 @@ import com.example.demo.bo.OrderRequest;
 import com.example.demo.bo.OrderSearchCriteria;
 import com.example.demo.entity.Member;
 import com.example.demo.entity.Order;
-import com.example.demo.exception.*;
 import com.example.demo.response.BaseResponse;
 import com.example.demo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,54 +28,33 @@ public class OrderController {
     @PostMapping
     @Operation(summary = "Create a new order")
     public ResponseEntity<BaseResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest) {
-        try {
-            Order savedOrder = orderService.save(orderRequest);
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.CREATED.value(), "Order created successfully", savedOrder);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (MemberNotFoundException | BadRequestException | ProductNotFoundException e) {
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+        Order savedOrder = orderService.save(orderRequest);
+        BaseResponse<Order> response = new BaseResponse<>(HttpStatus.CREATED.value(), "Order created successfully", savedOrder);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an order by ID")
     public ResponseEntity<BaseResponse<Order>> getOrderById(@PathVariable String id) {
-        try {
-            Order order = orderService.findById(id)
-                    .orElseThrow(() -> new OrderNotFoundException("Order not found with id " + id));
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.OK.value(), "Order retrieved successfully", order);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (OrderNotFoundException e) {
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+        Order order = orderService.findById(id);
+        BaseResponse<Order> response = new BaseResponse<>(HttpStatus.OK.value(), "Order retrieved successfully", order);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an order by ID")
     public ResponseEntity<BaseResponse<Void>> deleteOrder(@PathVariable String id) {
-        try {
-            orderService.delete(id);
-            BaseResponse<Void> response = new BaseResponse<>(HttpStatus.OK.value(), "Order deleted successfully");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (OrderNotFoundException e) {
-            BaseResponse<Void> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        orderService.delete(id);
+        BaseResponse<Void> response = new BaseResponse<>(HttpStatus.OK.value(), "Order deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an order by ID")
     public ResponseEntity<BaseResponse<Order>> updateOrder(@PathVariable String id, @RequestBody OrderRequest orderRequest) {
-        try {
-            Order updatedOrder = orderService.updateOrder(id, orderRequest);
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.OK.value(), "Order updated successfully", updatedOrder);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (OrderNotFoundException e) {
-            BaseResponse<Order> response = new BaseResponse<>(HttpStatus.NOT_FOUND.value(), e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        Order updatedOrder = orderService.updateOrder(id, orderRequest);
+        BaseResponse<Order> response = new BaseResponse<>(HttpStatus.OK.value(), "Order updated successfully", updatedOrder);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -85,7 +63,7 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> orders = orderService.findOrders(criteria, pageable);
         BaseResponse<Page<Order>> response = new BaseResponse<>(HttpStatus.OK.value(), "Orders retrieved successfully", orders);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stats")
@@ -93,6 +71,6 @@ public class OrderController {
     public ResponseEntity<BaseResponse<List<Member>>> getOrderStats(@RequestParam int n) {
         List<Member> members = orderService.findMembersWithOrdersGreaterThan(n);
         BaseResponse<List<Member>> response = new BaseResponse<>(HttpStatus.OK.value(), "Get members with more than n orders successfully", members);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 }

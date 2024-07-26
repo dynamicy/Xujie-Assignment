@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MemberService {
@@ -24,28 +23,24 @@ public class MemberService {
     }
 
     public Member update(String id, MemberRequest memberRequest) {
-        Optional<Member> memberOptional = memberRepository.findById(new ObjectId(id));
-        if (memberOptional.isPresent()) {
-            Member member = memberOptional.get();
-            member.setName(memberRequest.getName());
-            member.setEmail(memberRequest.getEmail());
-            return memberRepository.save(member);
-        } else {
-            throw new MemberNotFoundException("Member not found with id " + id);
-        }
+        ObjectId userId = new ObjectId(id);
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new MemberNotFoundException("Member not found with id " + id));
+        member.setName(memberRequest.getName());
+        member.setEmail(memberRequest.getEmail());
+        return memberRepository.save(member);
     }
 
     public void delete(String id) {
-        Optional<Member> memberOptional = memberRepository.findById(new ObjectId(id));
-        if (memberOptional.isPresent()) {
-            memberRepository.deleteById(new ObjectId(id));
-        } else {
+        ObjectId userId = new ObjectId(id);
+        if (!memberRepository.existsById(userId)) {
             throw new MemberNotFoundException("Member not found with id " + id);
         }
+        memberRepository.deleteById(new ObjectId(id));
     }
 
-    public Optional<Member> findById(String id) {
-        return memberRepository.findById(new ObjectId(id));
+    public Member findById(String id) {
+        ObjectId userId = new ObjectId(id);
+        return memberRepository.findById(userId).orElseThrow(() -> new MemberNotFoundException("Member not found"));
     }
 
     public List<Member> findAll() {
